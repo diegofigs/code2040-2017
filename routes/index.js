@@ -3,6 +3,7 @@ var router = express.Router();
 
 var esrever = require('esrever');
 var unirest = require('unirest');
+var moment = require('moment');
 var token = '8608e5d953f1b41486e51bed97e58fa8';
 
 
@@ -97,6 +98,30 @@ router.get('/step4', function(req, res){
         .send({
           token: token,
           array: new_array,
+        })
+        .end(function(response){
+          console.log('Final response: '+ response);
+          res.send(response);
+        });
+    });
+});
+
+router.get('/step5', function(req, res){
+  unirest.post('http://challenge.code2040.org/api/dating')
+    .type('json')
+    .send({
+      token: token,
+    })
+    .end(function(collection){
+      console.log('Step 5 collection: '+ collection.body);
+      var datestamp = moment(collection.body.datestamp);
+      var interval = moment.duration(interval, 's');
+      datestamp.add(collection.body.interval, 's').utc();
+      unirest.post('http://challenge.code2040.org/api/dating/validate')
+        .type('json')
+        .send({
+          token: token,
+          datestamp: datestamp.format('YYYY-MM-DD[T]HH:mm:ss[Z]'),
         })
         .end(function(response){
           console.log('Final response: '+ response);
