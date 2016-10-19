@@ -76,4 +76,33 @@ router.get('/step3', function(req, res){
     });
 });
 
+router.get('/step4', function(req, res){
+  unirest.post('http://challenge.code2040.org/api/prefix')
+    .type('json')
+    .send({
+      token: token,
+    })
+    .end(function(collection){
+      console.log('Step 4 collection: '+ collection.body);
+      var prefix = collection.body.prefix;
+      var array = collection.body.array;
+      var new_array = [];
+      array.forEach(function(string){
+        if(!(string.indexOf(prefix) === 0)){
+          new_array.push(string);
+        }
+      });
+      unirest.post('http://challenge.code2040.org/api/prefix/validate')
+        .type('json')
+        .send({
+          token: token,
+          array: new_array,
+        })
+        .end(function(response){
+          console.log('Final response: '+ response);
+          res.send(response);
+        });
+    });
+});
+
 module.exports = router;
