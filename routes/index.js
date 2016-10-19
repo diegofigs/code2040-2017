@@ -47,4 +47,33 @@ router.get('/step2', function(req, res) {
     });
 });
 
+router.get('/step3', function(req, res){
+  unirest.post('http://challenge.code2040.org/api/haystack')
+    .type('json')
+    .send({
+      token: token,
+    })
+    .end(function(collection){
+      console.log('Step 3 collection: '+ collection.body);
+      var needle = collection.body.needle;
+      var haystack = collection.body.haystack;
+      var i = 0;
+      haystack.forEach(function(string){
+        if(needle === string){
+          unirest.post('http://challenge.code2040.org/api/haystack/validate')
+            .type('json')
+            .send({
+              token: token,
+              needle: i,
+            })
+            .end(function(response){
+              console.log('Final response: '+ response);
+              res.send(response);
+            });
+        }
+        i = i + 1;
+      });
+    });
+});
+
 module.exports = router;
